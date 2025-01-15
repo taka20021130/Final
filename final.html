@@ -1,0 +1,256 @@
+<script src="https://cdn.jsdelivr.net/gh/kitao/pyxel/wasm/pyxel.js"></script>
+<pyxel-run script="
+import pyxel
+
+title=0
+name_set=10
+stage_set=11
+play=12
+end=13
+
+class App:
+    def __init__(self):
+        pyxel.init(200,80)
+        pyxel.mouse(True)
+        pyxel.load('my_resource.pyxres')
+        self.name_x=[]
+        self.name_y=[]
+        self.difficulty=50
+        self.turn=0
+        self.stop_count=0
+        self.number=0
+        self.player1_number=[]
+        self.player2_number=[]
+        self.player1_number_sum=0
+        self.player2_number_sum=0
+        self.burst=0
+        self.scene=title
+        pyxel.run(self.update,self.draw)
+
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_R):
+            self.name_x=[]
+            self.name_y=[]
+            self.difficulty=50
+            self.turn=0
+            self.stop_count=0
+            self.number=0
+            self.player1_number=[]
+            self.player2_number=[]
+            self.player1_number_sum=0
+            self.player2_number_sum=0
+            self.burst=0
+            self.scene=title
+        if self.scene==title:
+            if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+                self.scene=name_set
+        elif self.scene==name_set:
+            if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+                if 56<=pyxel.mouse_x<144 and 20<=pyxel.mouse_y<60:
+                    self.update_mozi_x(pyxel.mouse_x)
+                    self.update_mozi_y(pyxel.mouse_y)
+                elif 60<=pyxel.mouse_x<=140 and 65<=pyxel.mouse_y<75:
+                    self.scene=stage_set
+        elif self.scene==stage_set:
+            if pyxel.btn(pyxel.MOUSE_BUTTON_RIGHT):
+                if 50<=pyxel.mouse_x<150 and 40<=pyxel.mouse_y<=50:
+                    self.difficulty=pyxel.mouse_x-50
+                elif 60<=pyxel.mouse_x<=140 and 65<=pyxel.mouse_y<75:
+                    self.scene=play
+        elif self.scene==play:
+            if self.stop_count==11:
+                self.scene=end
+            if self.turn==0:
+                if self.stop_count<10:
+                    if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+                        if 60<=pyxel.mouse_x<=84 and 36<=pyxel.mouse_y<=44:
+                            self.number=pyxel.rndi(1,10)
+                            self.player1_number.append(self.number)
+                            self.player1_number_sum+=self.number
+                            if self.player1_number_sum>=21:
+                                self.burst=1
+                                self.scene=end
+                            self.turn=1
+                        elif 92<=pyxel.mouse_x<=132 and 36<=pyxel.mouse_y<=44:
+                            self.stop_count+=10
+                            self.turn=1
+                else:
+                    self.turn=1
+            elif self.turn==1:
+
+                if self.difficulty<=(21-self.player2_number_sum)*10 and self.stop_count%10==0:
+                    self.number=pyxel.rndi(1,10)
+                    self.player2_number.append(self.number)
+                    self.player2_number_sum+=self.number
+
+                    if self.player2_number_sum>=21:
+                        self.burst=2
+                        self.scene=end
+                    self.turn=0
+
+                elif 1==self.stop_count%10:
+                    self.turn=0
+
+                else:
+                    self.stop_count+=1
+                    self.turn=0
+
+
+    def update_mozi_x(self,x):
+        self.x=11-(x-56)/8
+        self.mozi_x=0
+
+        if self.scene==name_set:
+            if 0<=self.x<1:
+                self.mozi_x=0
+            elif 1<=self.x<2:
+                self.mozi_x=1
+            elif 2<=self.x<3:
+                self.mozi_x=2
+            elif 3<=self.x<4:
+                self.mozi_x=3
+            elif 4<=self.x<5:
+                self.mozi_x=4
+            elif 5<=self.x<6:
+                self.mozi_x=5
+            elif 6<=self.x<7:
+                self.mozi_x=6
+            elif 7<=self.x<8:
+                self.mozi_x=7
+            elif 8<=self.x<9:
+                self.mozi_x=8
+            elif 9<=self.x<10:
+                self.mozi_x=9
+            elif 10<=self.x<11:
+                self.mozi_x=10
+        self.name_y.append(self.mozi_x)
+
+
+    def update_mozi_y(self,y):
+        self.y=(y-20)/8
+        self.mozi_y=0
+
+        if self.scene==name_set:
+            if 0<=self.y<1:
+                self.mozi_y=0
+            elif 1<=self.y<2:
+                self.mozi_y=1
+            elif 2<=self.y<3:
+                self.mozi_y=2
+            elif 3<=self.y<4:
+                self.mozi_y=3
+            elif 4<=self.y<5:
+                self.mozi_y=4
+        self.name_x.append(self.mozi_y)
+
+
+    def draw(self):
+        pyxel.cls(7)
+        if self.scene==title:
+            pyxel.text(60,35,'pless "MOUSE_LEFT" to play',0)
+        elif self.scene==name_set:
+            pyxel.blt(56,6,0,0,0,8,8,7)
+            pyxel.blt(64,6,0,0,32,8,8,7)
+            pyxel.blt(72,6,0,0,24,8,8,7)
+            pyxel.blt(80,6,0,0,40,8,8,7)#あなたは
+            for i in range(len(self.name_x)):
+                pyxel.blt(96+i*8,6,0,(int(self.name_x[i]))*8,(int(self.name_y[i]))*8,8,8,7)
+            pyxel.rect(60,65,80,10,5)
+            pyxel.blt(92,66,0,32,0,8,8,7)
+            pyxel.blt(100,66,0,24,8,8,8,7)#おけ
+            for i in range(6):
+                for j in range(11):
+                    pyxel.blt(56+j*8,20+i*8,0,i*8,(10-j)*8,8,8,7)
+
+
+        elif self.scene==stage_set:
+            pyxel.blt(80,12,0,8,24,8,8,7)
+            pyxel.blt(88,12,0,8,8,8,8,7)
+            pyxel.blt(96,12,0,16,72,8,8,7)
+            pyxel.blt(104,12,0,32,24,8,8,7)
+            pyxel.blt(112,12,0,24,80,8,8,7)#ちきんど
+            pyxel.rect(49,39,102,12,0)
+            pyxel.rect(50,40,100,10,7)
+            pyxel.rect(self.difficulty+47,31,6,24,6)
+            pyxel.text(95,23,str(self.difficulty),5)#ほんきどメーター
+            pyxel.rect(60,65,80,10,5)
+            pyxel.blt(92,66,0,32,0,8,8,7)
+            pyxel.blt(100,66,0,24,8,8,8,7)#おけ
+
+
+        elif self.scene==play:
+            for i in range(len(self.player1_number)):
+                pyxel.blt(60+i*8,56,0,(self.player1_number[i])*8-8,96,8,16,7)
+            for i in range(len(self.player2_number)):
+                pyxel.blt(140-i*8,8,0,80,96,8,16,7)
+            for i in range(len(self.name_x)):
+                pyxel.blt(i*8,72,0,(int(self.name_x[i]))*8,(int(self.name_y[i]))*8,8,8,7)#自分の名前
+            pyxel.blt(176,0,0,24,24,8,8,7)
+            pyxel.blt(184,0,0,8,8,8,8,7)#てき
+            pyxel.rect(60,36,24,8,5)
+            pyxel.blt(60,36,0,8,40,8,8,7)
+            pyxel.blt(68,36,0,32,72,8,8,7)
+            pyxel.blt(76,36,0,32,24,8,8,7)#ひっと
+            pyxel.rect(92,36,40,8,5)
+            pyxel.blt(92,36,0,16,16,8,8,7)
+            pyxel.blt(100,36,0,0,24,8,8,7)
+            pyxel.blt(108,36,0,16,72,8,8,7)
+            pyxel.blt(116,36,0,32,24,8,8,7)
+            pyxel.blt(124,36,0,24,80,8,8,7)#すたんど
+
+            if self.stop_count==10:
+                pyxel.blt(60,64,0,16,16,8,8)
+                pyxel.blt(68,64,0,0,24,8,8)
+                pyxel.blt(76,64,0,16,72,8,8)
+                pyxel.blt(84,64,0,32,24,8,8)
+                pyxel.blt(92,64,0,24,80,8,8)#すたんど
+
+            if self.stop_count==1:
+                pyxel.blt(100,12,0,16,16,8,8)
+                pyxel.blt(108,12,0,0,24,8,8)
+                pyxel.blt(116,12,0,16,72,8,8)
+                pyxel.blt(124,12,0,32,24,8,8)
+                pyxel.blt(132,12,0,24,80,8,8)#すたんど
+
+
+        elif self.scene==end:
+            pyxel.blt(176,0,0,24,24,8,8,7)
+            pyxel.blt(184,0,0,8,8,8,8,7)#てき
+            for i in range(len(self.name_x)):
+                pyxel.blt(i*8,72,0,(int(self.name_x[i]))*8,(int(self.name_y[i]))*8,8,8,7)#自分の名前
+            for i in range(len(self.player1_number)):
+                pyxel.blt(60+i*8,56,0,(self.player1_number[i])*8-8,96,8,16,7)
+            for i in range(len(self.player2_number)):
+                pyxel.blt(140-i*8,8,0,(self.player2_number[i])*8-8,96,8,16,7)
+
+            if self.burst==1:
+                pyxel.blt(92,30,0,0,48,8,8,7)
+                pyxel.blt(100,30,0,24,8,8,8,7)#まけ
+                pyxel.text(60,40,'pless "R" to retry',0)
+
+            elif self.burst==2:
+                pyxel.blt(92,30,0,0,8,8,8,7)
+                pyxel.blt(100,30,0,8,24,8,8,7)#かち
+                pyxel.text(60,40,'pless "R" to retry',0)
+
+            else:
+                if self.player1_number_sum>self.player1_number_sum:
+                    pyxel.blt(92,30,0,0,8,8,8,7)
+                    pyxel.blt(100,30,0,8,24,8,8,7)#かち
+                    pyxel.text(60,40,'pless "R" to retry',0)
+
+                elif self.player1_number_sum<self.player1_number_sum:
+                    pyxel.blt(92,30,0,0,48,8,8,7)
+                    pyxel.blt(100,30,0,24,8,8,8,7)#まけ
+                    pyxel.text(60,40,'pless "R" to retry',0)
+
+                else:
+                    pyxel.blt(84,30,0,8,40,8,8,7)
+                    pyxel.blt(92,30,0,8,8,8,8,7)
+                    pyxel.blt(100,30,0,0,72,8,8,7)
+                    pyxel.blt(108,30,0,24,8,8,8,7)#まけ
+                    pyxel.text(60,40,'pless "R" to retry',0)
+
+
+App()
+"></pyxel-run>
