@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  </head>
+
+  <body>
+
+    <h1>Data from accelerometer</h1>
+      <button onclick="requestMotionPermission();">Get permission and start sensing</button>
+      <button onclick="stopDeviceMotion();">Stop</button>
+
+      <h2>Acceleration</h2>
+        <p> X: <span id="accel-x">0</span> </p>
+        <p> Y: <span id="accel-y">0</span> </p>
+        <p> Z: <span id="accel-z">0</span> </p>
+
+
+
+
+
+<script type="text/javascript">
+alert("Welcome to sample page 1!");
+
+//////////////////////////////////////////////////////
+//Function to get sensor access permission from the browser
+//////////////////////////////////////////////////////
+function requestMotionPermission(){
+  if ( DeviceMotionEvent &&
+       typeof DeviceMotionEvent.requestPermission === 'function' ){
+      // iOS 13+ 縺ｮ Safari
+      // 險ｱ蜿ｯ繧貞叙蠕�
+      DeviceMotionEvent.requestPermission().then(permissionState => {
+	  if (permissionState === 'granted') {
+              // 險ｱ蜿ｯ繧貞ｾ励ｉ繧後◆蝣ｴ蜷医‥evicemotion繧偵う繝吶Φ繝医Μ繧ｹ繝翫�縺ｫ霑ｽ蜉�
+	      window.addEventListener("devicemotion", handleAcceleration, false);
+	  } else {
+              // 險ｱ蜿ｯ繧貞ｾ励ｉ繧後↑縺九▲縺溷�ｴ蜷医�蜃ｦ逅�
+	      console.log("Perrmission not granted!");
+	      alert("Perrmission not granted!");
+	  }
+      }).catch(console.error) // https騾壻ｿ｡縺ｧ縺ｪ縺��ｴ蜷医↑縺ｩ縺ｧ險ｱ蜿ｯ繧貞叙蠕励〒縺阪↑縺九▲縺溷�ｴ蜷�
+
+  } else {
+      //For other devices
+      console.log("detected other device. so adding listener...");
+      window.addEventListener("devicemotion", handleAcceleration, false);
+  }
+
+}
+
+function stopDeviceMotion(){
+    window.removeEventListener("devicemotion", handleAcceleration, false);
+}
+
+////////////////////////////////////////////////////////////////////
+//Function(1): to handle acceleration data
+//  - This function will be called about 10-50 times per second
+////////////////////////////////////////////////////////////////////
+function handleAcceleration(ev){
+
+    //alert("" + event.acceleration.x + " " + event.acceleration.y + " " + event.acceleration.z);
+    $('#accel-x').text( ev.acceleration.x );
+    $('#accel-y').text( ev.acceleration.y );
+    $('#accel-z').text( ev.acceleration.z );
+}
+
+</script>
+<!--  ===========================================  -->
+
+
+
+</body><!--  ===========================================  -->
+</html>
